@@ -13,20 +13,24 @@ services_col = db["services"]
 
 
 class BookAppointmentModal(ctk.CTkToplevel):
-  #Modal dialog for booking and editing appointments.
 
-  def __init__(self, parent, title="Book Appointment", appt_data=None):
+  def __init__(
+      self, 
+      parent, 
+      title="Book Appointment", 
+      appt_data=None
+    ):
     super().__init__(parent)
     self.title(title)
-    self.geometry("460x580")
+    self.geometry("480x700")
     self.resizable(False, False)
     self.configure(fg_color="#FAF7F2")
 
     self.appt_data = appt_data or {}
     self.parent_page = parent
 
-    self.main_container = ctk.CTkFrame(self, fg_color="#FAF7F2")
-    self.main_container.pack(fill="both", expand=True, padx=15, pady=10)
+    self.main_container = ctk.CTkScrollableFrame(self, fg_color="#FAF7F2")
+    self.main_container.pack(fill="both", expand=True, padx=10, pady=10)
 
     ctk.CTkLabel(
         self.main_container,
@@ -35,19 +39,28 @@ class BookAppointmentModal(ctk.CTkToplevel):
         text_color="#2D2D2D",
     ).pack(pady=(5, 10))
 
-    # 1. Pet Name
-    self.pet_entry = self._create_field(
-        "Pet Name:", 
-        self.appt_data.get("pet", "")
+    # --- 1. Pet Name Field & Auto-Complete ---
+    self.pet_entry, self.pet_sugg_frame = self._create_autocomplete_field(
+        "Pet Name:",
+        self.appt_data.get("pet", ""),
+        on_key_release=self._on_pet_typing,
     )
 
-    # 2. Owner Name
-    self.owner_entry = self._create_field(
-        "Owner Name:", 
-        self.appt_data.get("owner", "")
+    # --- 2. Owner Name Field & Auto-Complete ---
+    self.owner_entry, self.owner_sugg_frame = self._create_autocomplete_field(
+        "Owner Name:",
+        self.appt_data.get("owner", ""),
+        on_key_release=self._on_owner_typing,
     )
 
-    # 3. Select Service
+    ctk.CTkLabel(
+        self.main_container,
+        text="💡 Tip: Type pet or owner name for automatic suggestions.",
+        font=("Segoe UI", 9, "italic"),
+        text_color="#A68A7A",
+    ).pack(anchor="w", padx=20, pady=(0, 6))
+
+    # --- 3. Select Service Dropdown ---
     ctk.CTkLabel(
         self.main_container,
         text="Select Service:",
@@ -56,10 +69,11 @@ class BookAppointmentModal(ctk.CTkToplevel):
     ).pack(anchor="w", padx=20, pady=(2, 1))
 
     service_docs = list(services_col.find({}))
-    service_options = [s.get("title") for s in service_docs if s.get("title")]
-
-    if not service_options:
-        service_options = ["No services available"]
+    service_options = (
+        [s.get("title") for s in service_docs if s.get("title")]
+        if service_docs
+        else ["Grooming", "Bath & Dry", "Check-up", "Vaccination"]
+    )
     default_svc = self.appt_data.get("service") or service_options[0]
 
     self.service_opt = ctk.CTkOptionMenu(
@@ -74,9 +88,9 @@ class BookAppointmentModal(ctk.CTkToplevel):
         height=32,
     )
     self.service_opt.set(default_svc)
-    self.service_opt.pack(fill="x", padx=20, pady=(0, 4))
+    self.service_opt.pack(fill="x", padx=20, pady=(0, 6))
 
-    # 4. Date & Time Parsing
+    # --- 4. Date & Time Parsing ---
     raw_dt = self.appt_data.get("datetime", "")
     date_val = datetime.datetime.now().strftime("%Y-%m-%d")
     time_val = "10:00 AM"
@@ -88,9 +102,11 @@ class BookAppointmentModal(ctk.CTkToplevel):
     elif raw_dt:
       date_val = raw_dt[:10]
 
-    self.date_entry = self._create_field("Appointment Date (YYYY-MM-DD):", date_val)
+    self.date_entry = self._create_field(
+        "Appointment Date (YYYY-MM-DD):", date_val
+    )
 
-    # 5. Time Slot
+    # --- 5. Select Time Slot Dropdown ---
     ctk.CTkLabel(
         self.main_container,
         text="Select Time Slot:",
@@ -121,9 +137,9 @@ class BookAppointmentModal(ctk.CTkToplevel):
         height=32,
     )
     self.time_opt.set(time_val if time_val in time_slots else time_slots[1])
-    self.time_opt.pack(fill="x", padx=20, pady=(0, 4))
+    self.time_opt.pack(fill="x", padx=20, pady=(0, 6))
 
-    # 6. Status
+    # --- 6. Status Dropdown ---
     ctk.CTkLabel(
         self.main_container,
         text="Status:",
@@ -131,7 +147,7 @@ class BookAppointmentModal(ctk.CTkToplevel):
         text_color="#8D5A4F",
     ).pack(anchor="w", padx=20, pady=(2, 1))
 
-    status_options = ["Confirmed", "Completed", "Cancelled"]
+    status_options = ["Confirmed", "Pending", "Completed", "Cancelled"]
     default_status = (
         self.appt_data.get("status", "Confirmed").strip().capitalize()
     )
@@ -153,7 +169,10 @@ class BookAppointmentModal(ctk.CTkToplevel):
     self.status_opt.pack(fill="x", padx=20, pady=(0, 6))
 
     self.err_label = ctk.CTkLabel(
-        self.main_container, text="", font=("Segoe UI", 11), text_color="#A94442"
+        self.main_container, 
+        text="", 
+        font=("Segoe UI", 11), 
+        text_color="#A94442"
     )
     self.err_label.pack(pady=(0, 2))
 
@@ -168,14 +187,14 @@ class BookAppointmentModal(ctk.CTkToplevel):
         corner_radius=10,
         command=self.save_appointment,
     )
-    btn_save.pack(fill="x", padx=20, pady=(5, 10))
+    btn_save.pack(fill="x", padx=20, pady=(10, 15))
 
     chain_enter_keys(
         [self.pet_entry, self.owner_entry, self.date_entry],
         submit_callback=self.save_appointment,
     )
 
-    self.center_on_screen(parent, 460, 580)
+    self.center_on_screen(parent, 480, 700)
 
   def _create_field(self, label, default=None):
     ctk.CTkLabel(
@@ -196,6 +215,142 @@ class BookAppointmentModal(ctk.CTkToplevel):
       entry.insert(0, str(default))
     entry.pack(fill="x", padx=20, pady=(0, 4))
     return entry
+
+  def _create_autocomplete_field(
+      self, label, default=None, on_key_release=None
+  ):
+    ctk.CTkLabel(
+        self.main_container,
+        text=label,
+        font=("Segoe UI", 11, "bold"),
+        text_color="#8D5A4F",
+    ).pack(anchor="w", padx=20, pady=(2, 1))
+
+    entry = ctk.CTkEntry(
+        self.main_container,
+        fg_color="white",
+        text_color="#2D2D2D",
+        border_color="#E8D2C8",
+        height=32,
+    )
+    if default is not None:
+      entry.insert(0, str(default))
+    entry.pack(fill="x", padx=20, pady=(0, 2))
+
+    sugg_frame = ctk.CTkFrame(
+      self.main_container, 
+      fg_color="white", 
+      corner_radius=6
+    )
+
+    if on_key_release:
+      entry.bind("<KeyRelease>", on_key_release)
+
+    return entry, sugg_frame
+
+  # --- Real-Time Pet Typing Search ---
+  def _on_pet_typing(self, event):
+    query_text = self.pet_entry.get().strip()
+    for child in self.pet_sugg_frame.winfo_children():
+      child.destroy()
+
+    if not query_text:
+      self.pet_sugg_frame.pack_forget()
+      return
+
+    # Find matching pets in MongoDB
+    matched_pets = list(
+        pets_col.find({"name": {"$regex": query_text, "$options": "i"}}).limit(
+            4
+        )
+    )
+
+    if not matched_pets:
+      self.pet_sugg_frame.pack_forget()
+      return
+
+    self.pet_sugg_frame.pack(fill="x", padx=20, pady=(0, 4))
+
+    for pet in matched_pets:
+      pet_name = pet.get("name", "")
+      owner_name = pet.get("owner", "")
+      display_lbl = (
+          f"🐾 {pet_name} (Owner: {owner_name})" if owner_name else f"🐾 {pet_name}"
+      )
+
+      btn = ctk.CTkButton(
+          self.pet_sugg_frame,
+          text=display_lbl,
+          anchor="w",
+          fg_color="transparent",
+          hover_color="#F7E8E1",
+          text_color="#2D2D2D",
+          height=28,
+          command=lambda p=pet_name, o=owner_name: self._select_pet(p, o),
+      )
+      btn.pack(fill="x", padx=2, pady=1)
+
+  def _select_pet(self, pet_name, owner_name):
+    self.pet_entry.delete(0, "end")
+    self.pet_entry.insert(0, pet_name)
+
+    if owner_name:
+      self.owner_entry.delete(0, "end")
+      self.owner_entry.insert(0, owner_name)
+
+    self.pet_sugg_frame.pack_forget()
+
+  # --- Real-Time Owner Typing Search ---
+  def _on_owner_typing(self, event):
+    query_text = self.owner_entry.get().strip()
+    for child in self.owner_sugg_frame.winfo_children():
+      child.destroy()
+
+    if not query_text:
+      self.owner_sugg_frame.pack_forget()
+      return
+
+    # Search in both customers and pets collections
+    cust_matches = list(
+        customers_col.find(
+            {"name": {"$regex": query_text, "$options": "i"}}
+        ).limit(4)
+    )
+    owner_names = [c.get("name") for c in cust_matches if c.get("name")]
+
+    if not owner_names:
+      pet_matches = list(
+          pets_col.find(
+              {"owner": {"$regex": query_text, "$options": "i"}}
+          ).limit(4)
+      )
+      owner_names = list(
+          set([p.get("owner") for p in pet_matches if p.get("owner")])
+      )
+
+    if not owner_names:
+      self.owner_sugg_frame.pack_forget()
+      return
+
+    self.owner_sugg_frame.pack(fill="x", padx=20, pady=(0, 4))
+
+    for name in owner_names:
+      btn = ctk.CTkButton(
+          self.owner_sugg_frame,
+          text=f"👤 {name}",
+          anchor="w",
+          fg_color="transparent",
+          hover_color="#F7E8E1",
+          text_color="#2D2D2D",
+          height=28,
+          command=lambda n=name: self._select_owner(n),
+      )
+      btn.pack(fill="x", padx=2, pady=1)
+
+  def _select_owner(self, owner_name):
+    self.owner_entry.delete(0, "end")
+    self.owner_entry.insert(0, owner_name)
+    self.owner_sugg_frame.pack_forget()
 
   def center_on_screen(self, parent, width, height):
     self.update_idletasks()
@@ -332,11 +487,7 @@ class AppointmentsPage(ctk.CTkFrame):
     )
     btn_add.pack(side="right", padx=20, pady=15)
 
-    table_card = ctk.CTkFrame(
-      self, 
-      fg_color="white", 
-      corner_radius=12
-    )
+    table_card = ctk.CTkFrame(self, fg_color="white", corner_radius=12)
     table_card.pack(fill="both", expand=True)
 
     ctk.CTkLabel(
@@ -362,14 +513,13 @@ class AppointmentsPage(ctk.CTkFrame):
       cell.grid_propagate(False)
       ctk.CTkLabel(
           cell, 
-          text=h, 
-          font=("Segoe UI", 12, "bold"), 
-          text_color="#8D5A4F"
+          text=h,
+            font=("Segoe UI", 12, "bold"), 
+            text_color="#8D5A4F"
       ).place(relx=0.5, rely=0.5, anchor="center")
 
     self.scroll_table = ctk.CTkScrollableFrame(
-        table_card, 
-        fg_color="transparent"
+        table_card, fg_color="transparent"
     )
     self.scroll_table.pack(fill="both", expand=True, padx=20, pady=(0, 15))
 
@@ -451,10 +601,7 @@ class AppointmentsPage(ctk.CTkFrame):
           text_color = "#8D5A4F" if col_idx == 0 else "#2D2D2D"
 
         ctk.CTkLabel(
-            cell, 
-            text=str(val), 
-            font=font, 
-            text_color=text_color
+            cell, text=str(val), font=font, text_color=text_color
         ).place(relx=0.5, rely=0.5, anchor="center")
 
       # Actions Column Frame
@@ -472,52 +619,50 @@ class AppointmentsPage(ctk.CTkFrame):
       container = ctk.CTkFrame(action_cell, fg_color="transparent")
       container.place(relx=0.5, rely=0.5, anchor="center")
 
-      # Robust check for Confirmed or Pending (case-insensitive)
+      # Show Tick and Cancel  buttons for Confirmed/Pending appointments
       if st in ["Confirmed", "Pending"]:
-        # Tick -> Marks status as Completed
         ctk.CTkButton(
             container,
             text="✔",
-            width=28,
-            height=28,
+            width=26,
+            height=26,
             fg_color="#D4EFDF",
             hover_color="#A9DFBF",
             text_color="#1E8449",
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 11, "bold"),
             command=lambda a=appt: self.quick_update_status(a, "Completed"),
         ).pack(side="left", padx=2)
 
-        # Cancel -> Marks status as Cancelled
         ctk.CTkButton(
             container,
             text="✖",
-            width=28,
-            height=28,
+            width=26,
+            height=26,
             fg_color="#FADBD8",
             hover_color="#F5B7B1",
             text_color="#A94442",
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 11, "bold"),
             command=lambda a=appt: self.quick_update_status(a, "Cancelled"),
         ).pack(side="left", padx=2)
 
-      # Edit Button  - Always visible
+      # Edit Button - Always visible
       ctk.CTkButton(
           container,
           text="✏️",
-          width=28,
-          height=28,
+          width=26,
+          height=26,
           fg_color="#F0E0D6",
           hover_color="#E2CEC1",
           text_color="black",
           command=lambda a=appt: self.open_edit_modal(a),
       ).pack(side="left", padx=2)
 
-      # Delete Button - Always visible
+      # Delete Button  - Always visible
       ctk.CTkButton(
           container,
           text="🗑️",
-          width=28,
-          height=28,
+          width=26,
+          height=26,
           fg_color="#FADBD8",
           hover_color="#F5B7B1",
           text_color="black",
