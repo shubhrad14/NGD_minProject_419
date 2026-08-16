@@ -31,7 +31,7 @@ def chain_enter_keys(entries: list, submit_callback=None):
     entries[-1].bind("<Return>", handle_submit)
 
 
-# ---------------- 🔍 REGEX VALIDATORS ---------------- #
+# ----------------  REGEX VALIDATORS ---------------- #
 def validate_phone(phone: str) -> bool:
   #Validates Indian phone number (+91 followed by exactly 10 digits).
   pattern = r"^\+91\s?\d{10}$"
@@ -44,7 +44,7 @@ def validate_email(email: str) -> bool:
   return bool(re.match(pattern, email.strip()))
 
 
-# ---------------- ⚠️ REUSABLE DELETE MODAL ---------------- #
+# ----------------  REUSABLE DELETE MODAL ---------------- #
 class ConfirmDeleteModal(ctk.CTkToplevel):
   #Reusable modal dialog for confirming item deletions.
 

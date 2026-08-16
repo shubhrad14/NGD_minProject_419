@@ -13,7 +13,7 @@ services_col = db["services"]
 
 
 class BookAppointmentModal(ctk.CTkToplevel):
-  """Modal dialog for booking and editing appointments."""
+  #Modal dialog for booking and editing appointments.
 
   def __init__(self, parent, title="Book Appointment", appt_data=None):
     super().__init__(parent)
@@ -37,12 +37,14 @@ class BookAppointmentModal(ctk.CTkToplevel):
 
     # 1. Pet Name
     self.pet_entry = self._create_field(
-        "Pet Name:", self.appt_data.get("pet", "")
+        "Pet Name:", 
+        self.appt_data.get("pet", "")
     )
 
     # 2. Owner Name
     self.owner_entry = self._create_field(
-        "Owner Name:", self.appt_data.get("owner", "")
+        "Owner Name:", 
+        self.appt_data.get("owner", "")
     )
 
     # 3. Select Service
@@ -129,7 +131,7 @@ class BookAppointmentModal(ctk.CTkToplevel):
         text_color="#8D5A4F",
     ).pack(anchor="w", padx=20, pady=(2, 1))
 
-    status_options = ["Confirmed", "Pending", "Completed", "Cancelled"]
+    status_options = ["Confirmed", "Completed", "Cancelled"]
     default_status = (
         self.appt_data.get("status", "Confirmed").strip().capitalize()
     )
@@ -259,7 +261,7 @@ class BookAppointmentModal(ctk.CTkToplevel):
 
 
 class AppointmentsPage(ctk.CTkFrame):
-  """Appointments Management UI Page."""
+  #Appointments Management UI Page.
 
   def __init__(self, parent):
     super().__init__(parent, fg_color="#FAF7F2")
@@ -275,7 +277,12 @@ class AppointmentsPage(ctk.CTkFrame):
     ]
     self.widths = [80, 130, 130, 140, 180, 110, 160]
 
-    controls = ctk.CTkFrame(self, fg_color="white", corner_radius=12, height=70)
+    controls = ctk.CTkFrame(
+      self, 
+      fg_color="white", 
+      corner_radius=12, 
+      height=70
+    )
     controls.pack(fill="x", pady=(0, 15))
     controls.pack_propagate(False)
 
@@ -325,7 +332,11 @@ class AppointmentsPage(ctk.CTkFrame):
     )
     btn_add.pack(side="right", padx=20, pady=15)
 
-    table_card = ctk.CTkFrame(self, fg_color="white", corner_radius=12)
+    table_card = ctk.CTkFrame(
+      self, 
+      fg_color="white", 
+      corner_radius=12
+    )
     table_card.pack(fill="both", expand=True)
 
     ctk.CTkLabel(
@@ -350,16 +361,23 @@ class AppointmentsPage(ctk.CTkFrame):
       cell.grid(row=0, column=idx, sticky="nsew")
       cell.grid_propagate(False)
       ctk.CTkLabel(
-          cell, text=h, font=("Segoe UI", 12, "bold"), text_color="#8D5A4F"
+          cell, 
+          text=h, 
+          font=("Segoe UI", 12, "bold"), 
+          text_color="#8D5A4F"
       ).place(relx=0.5, rely=0.5, anchor="center")
 
     self.scroll_table = ctk.CTkScrollableFrame(
-        table_card, fg_color="transparent"
+        table_card, 
+        fg_color="transparent"
     )
     self.scroll_table.pack(fill="both", expand=True, padx=20, pady=(0, 15))
 
     self.status_label = ctk.CTkLabel(
-        self, text="", font=("Segoe UI", 13, "bold"), text_color="#6D4C41"
+        self, 
+        text="", 
+        font=("Segoe UI", 13, "bold"), 
+        text_color="#6D4C41"
     )
     self.status_label.pack(side="bottom", pady=(0, 10))
 
@@ -433,7 +451,10 @@ class AppointmentsPage(ctk.CTkFrame):
           text_color = "#8D5A4F" if col_idx == 0 else "#2D2D2D"
 
         ctk.CTkLabel(
-            cell, text=str(val), font=font, text_color=text_color
+            cell, 
+            text=str(val), 
+            font=font, 
+            text_color=text_color
         ).place(relx=0.5, rely=0.5, anchor="center")
 
       # Actions Column Frame
@@ -453,7 +474,7 @@ class AppointmentsPage(ctk.CTkFrame):
 
       # Robust check for Confirmed or Pending (case-insensitive)
       if st in ["Confirmed", "Pending"]:
-        # Tick (✔) -> Marks status as Completed
+        # Tick -> Marks status as Completed
         ctk.CTkButton(
             container,
             text="✔",
@@ -466,7 +487,7 @@ class AppointmentsPage(ctk.CTkFrame):
             command=lambda a=appt: self.quick_update_status(a, "Completed"),
         ).pack(side="left", padx=2)
 
-        # Cancel (✖) -> Marks status as Cancelled
+        # Cancel -> Marks status as Cancelled
         ctk.CTkButton(
             container,
             text="✖",
@@ -479,7 +500,7 @@ class AppointmentsPage(ctk.CTkFrame):
             command=lambda a=appt: self.quick_update_status(a, "Cancelled"),
         ).pack(side="left", padx=2)
 
-      # Edit Button (✏️) - Always visible
+      # Edit Button  - Always visible
       ctk.CTkButton(
           container,
           text="✏️",
@@ -491,7 +512,7 @@ class AppointmentsPage(ctk.CTkFrame):
           command=lambda a=appt: self.open_edit_modal(a),
       ).pack(side="left", padx=2)
 
-      # Delete Button (🗑️) - Always visible
+      # Delete Button - Always visible
       ctk.CTkButton(
           container,
           text="🗑️",

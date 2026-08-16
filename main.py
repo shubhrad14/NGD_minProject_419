@@ -13,8 +13,6 @@ class PawfectCareApp(ctk.CTk):
         # Set minimum window size so it doesn't break if restored down
         self.minsize(1100, 650)
 
-        # Rest of your main setup code...
-
 # ---Splash Screen---
 from Screens.splash import SplashScreen
 

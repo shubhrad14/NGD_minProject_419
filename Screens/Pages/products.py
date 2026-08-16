@@ -9,7 +9,7 @@ products_col = db["products"]
 
 
 class AddProductModal(ctk.CTkToplevel):
-  """Modal dialog for adding and editing inventory products with Enter key navigation."""
+  #Modal dialog for adding and editing inventory products with Enter key navigation.
 
   def __init__(self, parent, title="Add New Product", product_data=None):
     super().__init__(parent)
@@ -32,7 +32,8 @@ class AddProductModal(ctk.CTkToplevel):
     ).pack(pady=(20, 15))
 
     self.name_entry = self._create_field(
-        "Product Name:", self.product_data.get("name")
+        "Product Name:", 
+        self.product_data.get("name")
     )
 
     # Category Dropdown Menu
@@ -70,13 +71,16 @@ class AddProductModal(ctk.CTkToplevel):
     self.category_opt.pack(fill="x", padx=40, pady=(0, 4))
 
     self.price_entry = self._create_field(
-        "Price (₹):", self.product_data.get("price")
+        "Price (₹):", 
+        self.product_data.get("price")
     )
     self.stock_entry = self._create_field(
-        "Stock Quantity:", self.product_data.get("stock")
+        "Stock Quantity:", 
+        self.product_data.get("stock")
     )
     self.desc_entry = self._create_field(
-        "Description:", self.product_data.get("description")
+        "Description:", 
+        self.product_data.get("description")
     )
 
     btn_save = ctk.CTkButton(
@@ -199,7 +203,7 @@ class AddProductModal(ctk.CTkToplevel):
 
 
 class ProductsPage(ctk.CTkFrame):
-  """Products Management UI Page displaying items in an interactive Card Layout."""
+  #Products Management UI Page displaying items in an interactive Card Layout.
 
   def __init__(self, parent):
     super().__init__(parent, fg_color="#FAF7F2")
@@ -246,12 +250,15 @@ class ProductsPage(ctk.CTkFrame):
 
     # Scrollable Grid Frame for Cards
     self.cards_scroll = ctk.CTkScrollableFrame(
-        main_card, fg_color="transparent"
+        main_card, 
+        fg_color="transparent"
     )
     self.cards_scroll.pack(fill="both", expand=True, padx=15, pady=(0, 15))
 
     self.status_label = ctk.CTkLabel(
-        self, text="", font=("Segoe UI", 13, "bold"), text_color="#6D4C41"
+        self, text="", 
+        font=("Segoe UI", 13, "bold"), 
+        text_color="#6D4C41"
     )
     self.status_label.pack(side="bottom", pady=(0, 10))
 
@@ -275,7 +282,9 @@ class ProductsPage(ctk.CTkFrame):
 
     if not prod_records:
       empty_frame = ctk.CTkFrame(
-          self.cards_scroll, fg_color="#FAF7F2", corner_radius=10
+          self.cards_scroll, 
+          fg_color="#FAF7F2", 
+          corner_radius=10
       )
       empty_frame.pack(fill="x", pady=20, padx=20)
       ctk.CTkLabel(
