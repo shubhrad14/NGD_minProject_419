@@ -89,7 +89,7 @@ Main collections include:
 
 
 ------ Project Structure ------
-
+```text
 PawfectCare/
 │
 ├── Assets/
