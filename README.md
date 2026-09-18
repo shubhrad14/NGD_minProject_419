@@ -1,4 +1,4 @@
-Pawfect Care
+**Pawfect Care**
 
 ----- Pet Care Management System -----
 
@@ -9,6 +9,9 @@ Pawfect Care is a desktop-based Pet Care Management System developed using Pytho
 Managing pet and customer records manually can be time-consuming and may lead to errors or loss of information. Pawfect Care provides a centralized system where important pet-care information can be stored, managed, and retrieved efficiently.
 
 The system includes an admin login with password recovery and a dashboard for accessing different management modules.
+
+Project Video
+[Click here to watch the PawfectCare Demo Video](https://drive.google.com/file/d/1AkTE3oIYcrCqXAYYzaKjziOrv3oLOIFn/view?usp=drive_link)
 
 ----- Objectives -----
 
@@ -115,8 +118,4 @@ PawfectCare/
 ├── requirements.txt
 ├── README.md
 └── main.py
-Project Video
-[Click here to watch the PawfectCare Demo Video](https://drive.google.com/file/d/1AkTE3oIYcrCqXAYYzaKjziOrv3oLOIFn/view?usp=drive_link)
-
-
 
